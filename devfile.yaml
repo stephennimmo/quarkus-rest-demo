@@ -18,7 +18,7 @@ projects:
 components:
   - name: tools
     container:
-      image: registry.access.redhat.com/ubi9/openjdk-21
+      image: registry.access.redhat.com/ubi9/openjdk-21-runtime:latest
       memoryLimit: 2Gi
       mountSources: true
       endpoints:
