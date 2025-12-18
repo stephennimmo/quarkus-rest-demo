@@ -1,0 +1,64 @@
+schemaVersion: 2.2.0
+metadata:
+  name: quarkus-rest-demo-java21
+  version: 1.1.0
+  displayName: Quarkus REST Demo (Java 21)
+  description: A Devfile for the Quarkus REST Demo project using OpenJDK 21.
+  tags: ["Java 21", "Quarkus", "Maven"]
+  projectType: "Quarkus"
+  language: "Java"
+
+components:
+  - name: java-quarkus
+    container:
+      # Using a standard Maven image with JDK 21
+      image: icr.io/appcafe/maven:3.9.5-openjdk-21
+      memoryLimit: 3G
+      mountSources: true
+      endpoints:
+        - name: http-quarkus
+          targetPort: 8080
+        - name: debug
+          targetPort: 5005
+          exposure: internal
+      env:
+        - name: MAVEN_OPTS
+          value: "-Xmx1536M"
+        - name: JAVA_HOME
+          value: /opt/java/openjdk
+
+commands:
+  - id: dev
+    exec:
+      label: "Run Quarkus Dev Mode (Java 21)"
+      component: java-quarkus
+      workingDir: ${PROJECT_SOURCE}
+      # Force Java 21 source/target levels if not already in pom.xml
+      commandLine: "./mvnw quarkus:dev -Dmaven.compiler.release=21"
+      group:
+        kind: run
+        isDefault: true
+
+  - id: build
+    exec:
+      label: "Build Application"
+      component: java-quarkus
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: "./mvnw clean package -Dmaven.compiler.release=21"
+      group:
+        kind: build
+        isDefault: true
+
+  - id: test
+    exec:
+      label: "Run Tests"
+      component: java-quarkus
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: "./mvnw test"
+      group:
+        kind: test
+        isDefault: true
+
+events:
+  postStart:
+    - build
