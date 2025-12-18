@@ -1,59 +1,66 @@
 schemaVersion: 2.2.0
 metadata:
-  name: quarkus-rest-demo-ubi9
-  version: 1.3.0
-  displayName: Quarkus REST Demo (Red Hat Java 21)
-  description: Fixed Dev environment to avoid SIGKILL on startup.
-  tags: ["Red Hat", "UBI9", "Java 21", "Quarkus"]
-  projectType: "Quarkus"
-  language: "Java"
+  name: quarkus-rest-demo-simple
+  version: 1.0.0
+  displayName: Quarkus REST Demo (Simple)
+  description: Minimal devfile for quick Quarkus development
+  tags:
+    - Java
+    - Quarkus
+    - REST
+
+projects:
+  - name: quarkus-rest-demo
+    git:
+      remotes:
+        origin: https://github.com/stephennimmo/quarkus-rest-demo.git
 
 components:
-  - name: java-quarkus
+  - name: tools
     container:
-      image: registry.access.redhat.com/ubi9/openjdk-21:latest
-      memoryLimit: 3G
+      image: registry.access.redhat.com/ubi9/openjdk-21
+      memoryLimit: 2Gi
       mountSources: true
       endpoints:
-        - name: http-quarkus
+        - name: app
           targetPort: 8080
-        - name: debug
-          targetPort: 5005
-          exposure: internal
+          exposure: public
       env:
-        - name: MAVEN_OPTS
-          value: "-Xmx1536M -XX:+UseParallelGC"
-        - name: HOME
-          value: /home/jboss
+        - name: QUARKUS_HTTP_HOST
+          value: 0.0.0.0
+      volumeMounts:
+        - name: m2
+          path: /home/user/.m2
+
+  - name: m2
+    volume:
+      size: 2Gi
 
 commands:
-  - id: install-dependencies
+  - id: run
     exec:
-      label: "1. Install Dependencies (Run once)"
-      component: java-quarkus
+      component: tools
+      commandLine: "./mvnw quarkus:dev -Dquarkus.http.host=0.0.0.0"
       workingDir: ${PROJECT_SOURCE}
-      # This command only downloads dependencies without running tests/builds
-      commandLine: "./mvnw dependency:go-offline"
-      group:
-        kind: build
-
-  - id: dev
-    exec:
-      label: "2. Run Quarkus Dev Mode"
-      component: java-quarkus
-      workingDir: ${PROJECT_SOURCE}
-      commandLine: "./mvnw quarkus:dev -Dmaven.compiler.release=21"
       group:
         kind: run
         isDefault: true
+      hotReloadCapable: true
 
   - id: build
     exec:
-      label: "Build Application"
-      component: java-quarkus
+      component: tools
+      commandLine: "./mvnw clean package"
       workingDir: ${PROJECT_SOURCE}
-      commandLine: "./mvnw clean package -DskipTests -Dmaven.compiler.release=21"
       group:
         kind: build
+        isDefault: true
 
-# Removed 'events' section to prevent startup timeout
+  - id: test
+    exec:
+      component: tools
+      commandLine: "./mvnw test"
+      workingDir: ${PROJECT_SOURCE}
+      group:
+        kind: test
+        isDefault: true
