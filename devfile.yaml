@@ -28,6 +28,8 @@ components:
       env:
         - name: QUARKUS_HTTP_HOST
           value: 0.0.0.0
+        - name: QUARKUS_DEV_UI_HOSTS
+          value: "*"
       volumeMounts:
         - name: m2
           path: /home/user/.m2
