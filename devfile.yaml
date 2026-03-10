@@ -18,7 +18,7 @@ projects:
 components:
   - name: tools
     container:
-      image: registry.access.redhat.com/ubi9/openjdk-21:latest
+      image: registry.redhat.io/devspaces/udi-rhel9:latest
       memoryLimit: 4Gi
       mountSources: true
       endpoints:
