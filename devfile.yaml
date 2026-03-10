@@ -18,8 +18,8 @@ projects:
 components:
   - name: tools
     container:
-      image: registry.redhat.io/ubi9/openjdk-25:latest
-      memoryLimit: 2Gi
+      image: registry.access.redhat.com/ubi9/openjdk-25:latest
+      memoryLimit: 4Gi
       mountSources: true
       endpoints:
         - name: app
